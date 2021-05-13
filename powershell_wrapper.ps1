@@ -6,12 +6,12 @@ Param (
   [String]$CmdScript
 )
 
-$input = Get-Item $PowerShellScript -ErrorAction Stop
-$output = $CmdScript
-if(-not $output) {
-    $output = ($input.FullName) -replace '\.ps1$', '.cmd'
+$inputPowerShell = Get-Item $PowerShellScript -ErrorAction Stop
+$outputCmd = $CmdScript
+if(-not $outputCmd) {
+    $outputCmd = ($inputPowerShell.FullName) -replace '\.ps1$', '.cmd'
 }
-$text = Get-Content $input -Raw
+$text = Get-Content $inputPowerShell -Raw
 $header = @'
 @echo off
 %windir%\System32\more +{0} "%~f0" > "%temp%\%~n0.ps1"
@@ -20,9 +20,9 @@ del %temp%\%~n0.ps1
 pause
 exit /b
 
-*** PowerShell ***
+*** wrapped PowerShell ***
 
 '@
 $header = $header -f ($header.Split("`n").Length - 1)
 $text = $header + $text
-Set-Content -Path $output -Value $text 
+Set-Content -Path $outputCmd -Value $text 
